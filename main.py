@@ -29,7 +29,7 @@ c = conn.cursor()
 # Tworzenie tabeli
 c.execute(''' CREATE TABLE IF NOT EXISTS words (
     id INTEGER PRIMARY KEY,
-    english_word TEXT NOT NULL,
+    english_word TEXT NOT NULL UNIQUE,
     translated_word TEXT NOT NULL
 )
 ''')
@@ -37,21 +37,27 @@ conn.commit()
 
 
 #Do poprawy
-words_to_add = [('apple', 'jablko'), ('pear', 'gruszka')]
-c.executemany('INSERT INTO words (english_word, translated_word) VALUES (?, ?)', words_to_add)
 
-conn.commit()
+#Dodanie slow do bazy danych
+words_to_add = [('apple', 'jablko'), ('pear', 'gruszka')]
 for word_pair in words_to_add:
     c.execute('SELECT *FROM words WHERE english_word=?', (word_pair[0],))
-    existing_word = c.fetchone()
-    if existing_word is None:
-        c.execute('INSERT INTO words (english_word, translated_word) VALUES (?, ?)', word_pair)
-
+    if not c.fetchone():
+        try:
+            c.executemany('INSERT INTO words (english_word, translated_word) VALUES (?, ?)', words_to_add)
+            conn.commit()
+        except sqlite3.IntegrityError:
+            print("te slowa juz istnieja w bazie ")
+        except Exception as e:
+            print(f"wystapil blad{e}")
+            c.execute('INSERT INTO words (english_word, translated_word) VALUES (?, ?)', word_pair)
+            conn.commit()
+#Wyswietlanie danych z bazy
 c.execute('SELECT *FROM words')
 rows = c.fetchall()
 for row in rows:
     print(row)
-conn.close()
+
 
 
 
