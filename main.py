@@ -35,10 +35,7 @@ c.execute(''' CREATE TABLE IF NOT EXISTS words (
 ''')
 conn.commit()
 
-
-#Do poprawy
-
-#Dodanie slow do bazy danych
+# Dodanie slow do bazy danych
 words_to_add = [('apple', 'jablko'), ('pear', 'gruszka')]
 for word_pair in words_to_add:
     c.execute('SELECT *FROM words WHERE english_word=?', (word_pair[0],))
@@ -50,27 +47,24 @@ for word_pair in words_to_add:
             print("te slowa juz istnieja w bazie ")
         except Exception as e:
             print(f"wystapil blad{e}")
-            c.execute('INSERT INTO words (english_word, translated_word) VALUES (?, ?)', word_pair)
-            conn.commit()
-#Wyswietlanie danych z bazy
+
+# Wyswietlanie danych z bazy
 c.execute('SELECT *FROM words')
 rows = c.fetchall()
 for row in rows:
     print(row)
 
-
-
-
-
-
 # Tworzenie okna glownego
 root = tk.Tk()
-root.geometry("400x400")
+root.geometry("600x300")
 root.title('Aplikacja do Nauki')
 tree = tkinter.ttk.Treeview(root, columns=('ID', 'English', 'Translated'), show='headings')
 tree.heading('ID', text='ID')
+tree.column('ID',anchor='center')
 tree.heading('English', text='Angielskie slowa')
+tree.column('English',anchor='center')
 tree.heading('Translated', text='Tlumaczenie')
+tree.column('Translated',anchor='center')
 tree.pack(expand=True, fill='both')
 load_button = tk.Button(root, text='Laduj slowa', command=zaladuj_dane)
 load_button.pack(pady=10)
